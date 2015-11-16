@@ -5,6 +5,7 @@ import os
 import pymssql
 import subprocess
 import ConfigParser
+import re
 
 config = ConfigParser.ConfigParser()
 config.readfp(open(r'config'))
@@ -12,6 +13,8 @@ config.readfp(open(r'config'))
 server = config.get('login', 'server')
 user = 'steelseries\{0}'.format(config.get('login', 'username'))
 password = config.get('login', 'password')
+
+pattern = re.compile('CREATE VIEW\s[a-z]*\.[A-z]*\_[\w\d]*\r\nAS\s*\r\n')
 
 source_folder = '.\output\John Galt'
 for the_file in os.listdir(source_folder):
@@ -28,7 +31,7 @@ with pymssql.connect(server, user, password, "EDW") as conn:
         cursor.execute("""
         SELECT  s.name AS SchemaName,
                 v.name AS ViewName,
-                sm.definition As [ViewDefinion]
+                sm.definition As [ViewDefinition]
         FROM    sys.views v
             INNER JOIN sys.schemas s ON s.schema_id = v.schema_id
             INNER JOIN sys.sql_modules sm ON sm.object_id = v.object_id
@@ -37,11 +40,16 @@ with pymssql.connect(server, user, password, "EDW") as conn:
         """)
 
         views = cursor.fetchall()
-        # print views[0]['ViewDefinion']
+        # print views[0]['ViewDefinition']
 
 for view in views:
+    # try:
+    #     print pattern.split(view['ViewDefinition'])[1]
+    # except IndexError:
+    #     print pattern.split(view['ViewDefinition'])
+    #     input("Press Enter to continue...")
     with open('output/John Galt/{0}.sql'.format(view['ViewName']), 'wb') as the_file:
-        the_file.write(view['ViewDefinion'])
+        the_file.write(pattern.split(view['ViewDefinition'])[1])
 
 os.chdir("output/John Galt")
 subprocess.call("git add *.sql", shell=True)
