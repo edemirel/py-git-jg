@@ -61,3 +61,5 @@ Include/*
 output/
 Lib/*
 Scripts/*
+
+config

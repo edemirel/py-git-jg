@@ -1,6 +1,5 @@
 # coding: utf-8
 
-import os
 import ConfigParser
 
 config = ConfigParser.ConfigParser()
@@ -10,7 +9,7 @@ repository = config.get('git', 'repository')
 user = config.get('git', 'username')
 password = config.get('git', 'password')
 token = config.get('git', 'token')
-organization = config.get('git','organization')
+organization = config.get('git', 'organization')
 
 from github import Github
 
@@ -25,5 +24,3 @@ for org in org_list:
         break
 
 print repo
-
-
